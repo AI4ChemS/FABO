@@ -58,10 +58,10 @@ Feature Adaptive Bayesian Optimisation
     
     
     
-    Image Test
-    ![Alt Text](figures/1.pdf)
+
 
 ```
-
+    Image Test
+    ![Alt Text](figures/1.pdf)
 --------
 
