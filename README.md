@@ -55,6 +55,12 @@ Feature Adaptive Bayesian Optimisation
     │   └── train.py            <- Code to train models
     │
     └── plots.py                <- Code to create visualizations
+    
+    
+    
+    Image Test
+    ![Alt Text](figures/1.pdf)
+
 ```
 
 --------
