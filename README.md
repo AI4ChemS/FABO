@@ -6,7 +6,7 @@
 
 **FABO (Feature-Adaptive Bayesian Optimization)** is a powerful framework designed to enhance the optimization of material discovery processes by dynamically selecting the most relevant features during each iteration of the optimization process. The framework integrates advanced feature selection techniques, such as **mRMR** and **Spearman ranking**, within the **Bayesian optimization (BO)** loop, reducing data dimensionality and improving the efficiency of BO in high-dimensional search spaces.
 
-![Project Demo](figures/1.png)
+![Project Demo](figures/1.svg)
 
 
 This repository provides the code and resources to run FABO on different tasks, such as **CO₂ uptake** and **electronic property optimization** for **MOF discovery**. The framework adapts to the underlying data distributions, offering a more flexible and realistic approach than traditional BO methods that rely on fixed feature sets.
