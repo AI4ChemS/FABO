@@ -1,6 +1,6 @@
 # FABO: Feature-Adaptive Bayesian Optimization Framework
 
-![License](https://img.shields.io/github/license/your-username/fabo) ![Issues](https://img.shields.io/github/issues/your-username/fabo) ![Stars](https://img.shields.io/github/stars/your-username/fabo)
+![License](https://img.shields.io/github/license/Mahyar-rajabi94/FABO) ![Issues](https://img.shields.io/github/issues/Mahyar-rajabi94/FABO) ![Stars](https://img.shields.io/github/stars/Mahyar-rajabi94/FABO)
 
 ## Overview
 
