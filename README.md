@@ -23,7 +23,7 @@ This repository provides the code and resources to run FABO on different tasks, 
 Clone the repository and install the required dependencies:
 
 ```bash
-git clone https://github.com/your-username/fabo.git
-cd fabo
+git clone https://github.com/your-username/FABO.git
+cd FABO
 pip install -r requirements.txt
 

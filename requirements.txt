@@ -1,6 +1,11 @@
-black
-flake8
-isort
-pip
-python-dotenv
--e .
+torch
+numpy
+pandas
+matplotlib
+scipy
+tqdm
+scikit-learn
+botorch
+gpytorch
+mrmr-selection
+
