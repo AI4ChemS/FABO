@@ -21,8 +21,8 @@ from gpytorch.mlls import ExactMarginalLogLikelihood
 from gpytorch.likelihoods import GaussianLikelihood
 from gpytorch.kernels import ScaleKernel, MaternKernel
 
-from utils import data_load
-from utils import feature_selection_funcs
+from code import data_load
+from code import feature_selection_funcs
 
 
 
@@ -65,7 +65,7 @@ def feature_selection_loop(data,labels,ids_acquired, FS_method = 'mRMR', min_fea
 
     return top_features , feature_error
 
-###############################################################################################################################################
+###############################################################################################################################
 
 def five_fold_cross_val(X_train,y_train):
 
@@ -103,7 +103,7 @@ def five_fold_cross_val(X_train,y_train):
         error.append(eval_GP_model(X_train,y_train,X_val,y_val))
     return sum(error)/len(error)
     
-###############################################################################################################################################
+###############################################################################################################################
 
 def eval_GP_model(X_train,y_train,X_val,y_val):
 
@@ -118,7 +118,7 @@ def eval_GP_model(X_train,y_train,X_val,y_val):
 
     return float(mae(y_true,y_pred))
 
-###############################################################################################################################################
+###############################################################################################################################
 
 def bo_run(X,y,nb_MOFs, nb_iterations, nb_MOFs_initialization, which_acquisition, kernel_type, min_features = 5, max_features = 30, FABO=False, store_explore_exploit_terms=True, cross_val_stats=False, FS_method = 'spearman'):
     assert nb_iterations > nb_MOFs_initialization
@@ -224,7 +224,76 @@ def bo_run(X,y,nb_MOFs, nb_iterations, nb_MOFs_initialization, which_acquisition
     assert np.size(ids_acquired) == nb_iterations
     return ids_acquired, explore_exploit_balance, feature_count, error, top_features_dict , feature_error_dict 
 
-###############################################################################################################################################
+
+    
+###############################################################################################################################
+
+def main(X,y,nb_MOFs, nb_iterations, nb_MOFs_initialization, which_acquisition, min_features, max_features, FABO, experiment_name, cross_val_stats=False, kernel_type = 'Default', i = 1, FS_method = 'spearman'):
+
+    # Save Path
+    save_path = experiment_name
+
+    # RUN TRAINING
+    which_acquisition = "EI"
+    nb_MOFs_initializations = {"EI": [nb_MOFs_initialization], 
+                            "max y_hat": [10], 
+                            "max sigma": [10]}
+    for nb_MOFs_initialization in nb_MOFs_initializations[which_acquisition]:
+        print("# MOFs in initialization:", nb_MOFs_initialization)
+        # store results here.
+        bo_res = dict() 
+        bo_res['ids_acquired']            = []
+        bo_res['explore_exploit_balance'] = []
+        store_explore_exploit_terms = True
+        t0 = time.time()
+        
+        ids_acquired, explore_exploit_balance, feature_count, err, top_features_dict , feature_error_dict = bo_run(X.copy(), y.copy(), nb_MOFs, nb_iterations, nb_MOFs_initialization, which_acquisition,kernel_type, min_features, max_features, FABO, store_explore_exploit_terms=store_explore_exploit_terms,cross_val_stats=cross_val_stats, FS_method = FS_method)
+        
+        bo_res['ids_acquired'].append(ids_acquired)
+        bo_res['explore_exploit_balance'].append(explore_exploit_balance)
+        
+        print("took time t = ", 100 * ((time.time() - t0) / 60), "min\n")
+
+    ids = ids_acquired
+    rankings = []
+    in_top_250 = 0
+
+    y = torch.tensor(y).unsqueeze(1)
+
+    sort = torch.sort(y[:,0],descending=True,axis=0)
+    for i in ids:
+        position = int(np.where(i == sort.indices)[0])
+        if rankings == []:
+            rankings = [position]
+        elif position < rankings[-1]:
+            rankings.append(position)
+        else:
+            rankings.append(rankings[-1])
+
+        if position < 250:
+            in_top_250 += 1
+
+    min_val = max(y[ids_acquired][:,0])
+    min_ind = np.where(y[:,0] == min_val)[0]
+    found = np.where(y[ids_acquired][:,0] == min_val)[0]
+
+    output = np.array([int(i)]+ [experiment_name] + [int(rankings[-1]) + 1] + [float(min_val)] + [int(min_ind)] + [int(found)] + [float(in_top_250/100)])
+
+    rank = np.array(rankings)
+    plot_info = {"Rank": rank, "IDS": ids_acquired, "Feature Count" : feature_count, "Error": err, "top_features": top_features_dict , "feature_error": feature_error_dict, "explore_exploit_balance" : bo_res['explore_exploit_balance']}
+
+#     if os.path.isdir("Pickle_Files/" + "FABO_" + save_path) == False:
+#         os.mkdir("Pickle_Files/" + "FABO_" + save_path)
+#     file = open("Pickle_Files/" + "FABO_" + save_path + "/" + experiment_name + ".pkl", 'wb')
+    file = open("Pickle_Files/" + experiment_name + ".pkl", 'wb')
+
+    pickle.dump(plot_info,file)
+    # close the file
+    file.close()
+
+    return output, rank, ids_acquired, feature_count, plot_info
+
+###############################################################################################################################
 
 def feature_evaluation(X,y,feature_set_name, user_name,features, nb_iterations = 250, seed=3,cross_val_stats=False):
 
@@ -299,69 +368,37 @@ def feature_evaluation(X,y,feature_set_name, user_name,features, nb_iterations =
         
 
     return output, rankings, ids_acquired, err
-    
-###############################################################################################################################################
 
-def main(X,y,nb_MOFs, nb_iterations, nb_MOFs_initialization, which_acquisition, min_features, max_features, FABO, experiment_name, cross_val_stats=False, kernel_type = 'Default', i = 1, FS_method = 'spearman'):
 
-    # Save Path
-    save_path = experiment_name
+###############################################################################################################################
 
-    # RUN TRAINING
-    which_acquisition = "EI"
-    nb_MOFs_initializations = {"EI": [nb_MOFs_initialization], 
-                            "max y_hat": [10], 
-                            "max sigma": [10]}
-    for nb_MOFs_initialization in nb_MOFs_initializations[which_acquisition]:
-        print("# MOFs in initialization:", nb_MOFs_initialization)
-        # store results here.
-        bo_res = dict() 
-        bo_res['ids_acquired']            = []
-        bo_res['explore_exploit_balance'] = []
-        store_explore_exploit_terms = True
-        t0 = time.time()
-        
-        ids_acquired, explore_exploit_balance, feature_count, err, top_features_dict , feature_error_dict = bo_run(X.copy(), y.copy(), nb_MOFs, nb_iterations, nb_MOFs_initialization, which_acquisition,kernel_type, min_features, max_features, FABO, store_explore_exploit_terms=store_explore_exploit_terms,cross_val_stats=cross_val_stats, FS_method = FS_method)
-        
-        bo_res['ids_acquired'].append(ids_acquired)
-        bo_res['explore_exploit_balance'].append(explore_exploit_balance)
-        
-        print("took time t = ", (time.time() - t0) / 60, "min\n")
 
-    ids = ids_acquired
-    rankings = []
-    in_top_250 = 0
+def baseline(path, label, nb_iterations, n_seed):
+    df_CORE160 = pd.read_csv(path)
+    CO2_uptake = list(df_CORE160[label].values) 
 
-    y = torch.tensor(y).unsqueeze(1)
+    ranks = df_CORE160[label].rank(method='min', ascending=False)
+    np.random.seed(n_seed)  
+    num_rows = nb_iterations
+    num_cols = n_seed
+    value_range = df_CORE160.shape[0]-1
+    data_random = np.zeros((num_rows, num_cols), dtype=int)
+    for col in range(num_cols):
+        data_random[:, col] = np.random.choice(range(1, value_range + 1), num_rows, replace=False)
 
-    sort = torch.sort(y[:,0],descending=True,axis=0)
-    for i in ids:
-        position = int(np.where(i == sort.indices)[0])
-        if rankings == []:
-            rankings = [position]
-        elif position < rankings[-1]:
-            rankings.append(position)
-        else:
-            rankings.append(rankings[-1])
-
-        if position < 250:
-            in_top_250 += 1
-
-    min_val = max(y[ids_acquired][:,0])
-    min_ind = np.where(y[:,0] == min_val)[0]
-    found = np.where(y[ids_acquired][:,0] == min_val)[0]
-
-    output = np.array([int(i)]+ [experiment_name] + [int(rankings[-1]) + 1] + [float(min_val)] + [int(min_ind)] + [int(found)] + [float(in_top_250/100)])
-
-    rank = np.array(rankings)
-    plot_info = {"Rank": rank, "IDS": ids_acquired, "Feature Count" : feature_count, "Error": err, "top_features": top_features_dict , "feature_error": feature_error_dict, "explore_exploit_balance" : bo_res['explore_exploit_balance']}
-
-    if os.path.isdir("Pickle_Files/" + "FABO_" + save_path) == False:
-        os.mkdir("Pickle_Files/" + "FABO_" + save_path)
-    file = open("Pickle_Files/" + "FABO_" + save_path + "/" + experiment_name + ".pkl", 'wb')
-    pickle.dump(plot_info,file)
-    # close the file
-    file.close()
-
-    return output, rank, ids_acquired, feature_count, plot_info
+    rank_list = []
+    data_Random = {}
+    for i in range(num_rows):
+        temp_list = []
+        for j in range(num_cols):
+            temp_list.append(int(ranks[data_random[i,j]]))
+        rank_list.append(temp_list)
+    highest_rank_Random = np.array(rank_list)
+    for i in range(1, highest_rank_Random.shape[0]):  
+        for j in range(highest_rank_Random.shape[1]):  
+            if highest_rank_Random[i, j] > highest_rank_Random[i - 1, j]:
+                highest_rank_Random[i, j] = highest_rank_Random[i - 1, j]
+    rank_avg = pd.Series(np.mean(highest_rank_Random, axis=1))
+    id_methods = pd.DataFrame(data_random)
+    return rank_avg, id_methods
 
