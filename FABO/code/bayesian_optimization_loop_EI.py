@@ -120,12 +120,12 @@ def eval_GP_model(X_train,y_train,X_val,y_val):
 
 ###############################################################################################################################
 
-def bo_run(X,y,nb_MOFs, nb_iterations, nb_MOFs_initialization, which_acquisition, kernel_type, min_features = 5, max_features = 30, FABO=False, store_explore_exploit_terms=True, cross_val_stats=False, FS_method = 'spearman'):
-    assert nb_iterations > nb_MOFs_initialization
+def bo_run(X,y,nb_MOFs, nb_iterations, nb_initialization, which_acquisition, kernel_type, min_features = 5, max_features = 30, FABO=False, store_explore_exploit_terms=True, cross_val_stats=False, FS_method = 'spearman'):
+    assert nb_iterations > nb_initialization
     assert which_acquisition in ['max y_hat', 'EI', 'max sigma']
     
 
-    ids_acquired = np.random.choice(np.arange((nb_MOFs)), size=nb_MOFs_initialization, replace=False)
+    ids_acquired = np.random.choice(np.arange((nb_MOFs)), size=nb_initialization, replace=False)
 
     df_X = X.copy()
     df_y = y.copy() 
@@ -140,7 +140,7 @@ def bo_run(X,y,nb_MOFs, nb_iterations, nb_MOFs_initialization, which_acquisition
     top_features_dict = dict()
     feature_error_dict = dict()
     
-    for i in range(nb_MOFs_initialization, nb_iterations):
+    for i in range(nb_initialization, nb_iterations):
         print("iteration:", i, end="\r")
 
         if FABO:
@@ -228,18 +228,18 @@ def bo_run(X,y,nb_MOFs, nb_iterations, nb_MOFs_initialization, which_acquisition
     
 ###############################################################################################################################
 
-def main(X,y,nb_MOFs, nb_iterations, nb_MOFs_initialization, which_acquisition, min_features, max_features, FABO, experiment_name, cross_val_stats=False, kernel_type = 'Default', i = 1, FS_method = 'spearman'):
+def main(X,y,nb_MOFs, nb_iterations, nb_initialization, which_acquisition, min_features, max_features, FABO, experiment_name, cross_val_stats=False, kernel_type = 'Default', i = 1, FS_method = 'spearman'):
 
     # Save Path
     save_path = experiment_name
 
     # RUN TRAINING
     which_acquisition = "EI"
-    nb_MOFs_initializations = {"EI": [nb_MOFs_initialization], 
+    nb_initializations = {"EI": [nb_initialization], 
                             "max y_hat": [10], 
                             "max sigma": [10]}
-    for nb_MOFs_initialization in nb_MOFs_initializations[which_acquisition]:
-        print("# MOFs in initialization:", nb_MOFs_initialization)
+    for nb_initialization in nb_initializations[which_acquisition]:
+        print("# MOFs in initialization:", nb_initialization)
         # store results here.
         bo_res = dict() 
         bo_res['ids_acquired']            = []
@@ -247,7 +247,7 @@ def main(X,y,nb_MOFs, nb_iterations, nb_MOFs_initialization, which_acquisition, 
         store_explore_exploit_terms = True
         t0 = time.time()
         
-        ids_acquired, explore_exploit_balance, feature_count, err, top_features_dict , feature_error_dict = bo_run(X.copy(), y.copy(), nb_MOFs, nb_iterations, nb_MOFs_initialization, which_acquisition,kernel_type, min_features, max_features, FABO, store_explore_exploit_terms=store_explore_exploit_terms,cross_val_stats=cross_val_stats, FS_method = FS_method)
+        ids_acquired, explore_exploit_balance, feature_count, err, top_features_dict , feature_error_dict = bo_run(X.copy(), y.copy(), nb_MOFs, nb_iterations, nb_initialization, which_acquisition,kernel_type, min_features, max_features, FABO, store_explore_exploit_terms=store_explore_exploit_terms,cross_val_stats=cross_val_stats, FS_method = FS_method)
         
         bo_res['ids_acquired'].append(ids_acquired)
         bo_res['explore_exploit_balance'].append(explore_exploit_balance)
@@ -317,21 +317,21 @@ def feature_evaluation(X,y,feature_set_name, user_name,features, nb_iterations =
     print("# Random Seed", seed)
 
     which_acquisition = "EI"
-    nb_MOFs_initializations = {"EI": [10], 
+    nb_initializations = {"EI": [10], 
                             "max y_hat": [10], 
                             "max sigma": [10]}
-    for nb_MOFs_initialization in nb_MOFs_initializations[which_acquisition]:
-        print("# MOFs in initialization:", nb_MOFs_initialization)
+    for nb_initialization in nb_initializations[which_acquisition]:
+        print("# MOFs in initialization:", nb_initialization)
         bo_res = dict() 
         bo_res['ids_acquired']            = []
         bo_res['explore_exploit_balance'] = []
-        if nb_MOFs_initialization == 10 and which_acquisition == 'EI':
+        if nb_initialization == 10 and which_acquisition == 'EI':
             store_explore_exploit_terms = True
         else:
             store_explore_exploit_terms = False
         
         t0 = time.time()            
-        ids_acquired, explore_exploit_balance, feature_count, err = bo_run(X,y,nb_MOFs,nb_iterations, nb_MOFs_initialization, which_acquisition, store_explore_exploit_terms=store_explore_exploit_terms,cross_val_stats=cross_val_stats)
+        ids_acquired, explore_exploit_balance, feature_count, err = bo_run(X,y,nb_MOFs,nb_iterations, nb_initialization, which_acquisition, store_explore_exploit_terms=store_explore_exploit_terms,cross_val_stats=cross_val_stats)
         
         bo_res['ids_acquired'].append(ids_acquired)
         bo_res['explore_exploit_balance'].append(explore_exploit_balance)
