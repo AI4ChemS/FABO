@@ -26,39 +26,3 @@ Clone the repository and install the required dependencies:
 git clone https://github.com/your-username/FABO.git
 cd FABO
 pip install -r requirements.txt```
-
-## Customizing FABO for Your Application
-
-In the second block of the **FABO_main** notebook, you have the flexibility to adjust FABO's parameters to suit your specific optimization needs. Below are the key elements you can modify and what they do:
-
-- **`nb_iterations`**: The number of iterations for the Bayesian optimization process.
-  
-- **`nb_initialization`**: The number of initial samples selected randomly from the dataset to start the optimization.
-
-- **`min_features` and `max_features`**: The minimum and maximum number of features to be selected during each feature selection cycle (defaults: `5` and `20` respectively).  
-
-- **`FABO`**: A Boolean flag indicating whether to use the Feature-Adaptive Bayesian Optimization (FABO) method (`True` or `False`).  
-  - *Hint*: Set to `True` to enable FABO, or `False` to run a traditional BO without adaptive feature selection.
-
-- **`which_acquisition`**: Determines the acquisition function to be used for selecting the next sample. Options: `"EI"` (Expected Improvement), `"max y_hat"` (exploitation), or `"max sigma"` (exploration).  
-
-- **`FS_method`**: The feature selection method used in FABO. Options include `'spearman'` or `'mRMR'`.  
-
-- **`n_seed` and `seeds`**: Controls randomness in the optimization process. `n_seed` sets the number of random seeds, and `seeds` generates the list of seeds (default: `19` seeds).  
-
-- **`path`**: The path to the dataset used for the optimization.  
-  - *Hint*: Provide the file path to your dataset here. Make sure the dataset is in a CSV format.
-
-- **`label`**: Specifies the target property in your dataset that FABO will optimize (e.g., `"pure_uptake_CO2_298.00_1600000"`).  
-  - *Hint*: Replace this with the label of the property you are optimizing in your dataset, such as CO₂ uptake, bandgap, etc.
-
-### Example:
-
-To use FABO for optimizing a new task, modify the following parameters:
-
-- Set `path` to the path of your dataset (e.g., `path = "data/my_dataset.csv"`).
-- Adjust `label` to target the property of interest (e.g., `label = "target_property"`).
-- Choose the acquisition function (`which_acquisition`) based on whether you want more exploration (`"max sigma"`) or exploitation (`"max y_hat"`).
-- Set `min_features` and `max_features` to match the feature set range appropriate for your task.
-
-By personalizing these elements, you can adapt FABO to efficiently optimize your material discovery tasks.
