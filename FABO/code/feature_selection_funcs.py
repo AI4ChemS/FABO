@@ -9,6 +9,7 @@ from sklearn.feature_selection import RFECV
 from sklearn.feature_selection import mutual_info_regression
 # import xgboost as xgb
 from mrmr import mrmr_regression
+from sklearn.ensemble import RandomForestRegressor
 
 
 def get_spearman_top_N(X,y,N):
@@ -84,6 +85,22 @@ def XGboost_feature_selection(X,y,hyperparameters,N):
     importance_df = importance_df.sort_values(by='importance', ascending=False)    
     acq_features = list(importance_df['feature'][:N].values)
     return acq_features
+
+
+
+def get_rf_top_N(X, y, N, n_estimators=50, max_depth=None, max_features='auto', sample_size=None):
+    if sample_size is not None:
+        X_sample = X.sample(n=min(sample_size, len(X)), random_state=42)
+        y_sample = y.loc[X_sample.index]
+    else:
+        X_sample, y_sample = X, y
+    model = RandomForestRegressor(n_estimators=n_estimators, max_depth=max_depth, max_features=max_features, n_jobs=-1, random_state=42)
+    model.fit(X_sample, y_sample)
+    importances = model.feature_importances_
+    feature_importances = pd.Series(importances, index=X_sample.columns)
+    top_features = feature_importances.nlargest(N)
+    return top_features.index.tolist()
+
 
 
 

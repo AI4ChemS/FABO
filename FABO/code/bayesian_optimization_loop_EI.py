@@ -33,13 +33,15 @@ def feature_selection_loop(data,labels,ids_acquired, FS_method = 'mRMR', min_fea
     waiting = 0
     error_dict = {}
     feature_dict = {}
-    for N in range(min_features,max_features):
+    for N in range(min_features,max_features, 5):
         # Get top features
         if FS_method == 'mRMR':
             acq_features = feature_selection_funcs.get_mrmr_top_N(data.copy().loc[ids_acquired,:],labels.copy()[ids_acquired],N)
         elif FS_method == 'spearman':
             acq_features = feature_selection_funcs.get_spearman_top_N(data.copy().loc[ids_acquired,:],labels.copy()[ids_acquired],N)
-
+        elif FS_method == 'RF':
+            acq_features = feature_selection_funcs.get_rf_top_N(data.copy().loc[ids_acquired,:],labels.copy()[ids_acquired],N, n_estimators=50, max_depth=10)
+            
         feature_dict[N] = acq_features
         
         X = np.array(data[acq_features])
@@ -168,19 +170,7 @@ def bo_run(X,y,nb_MOFs, nb_iterations, nb_initialization, which_acquisition, ker
             if (i+1)%5 == 0 :
                 error.append(five_fold_cross_val(X[ids_acquired, :],y_acquired))
         
-        model = SingleTaskGP(X[ids_acquired, :], y_acquired)
-        if kernel_type == 'Default':
-            mll = ExactMarginalLogLikelihood(model.likelihood, model)
-            fit_gpytorch_mll(mll)
-        else:
-            custom_kernel = ScaleKernel(kernel_type)
-            model.covar_module = custom_kernel
-            likelihood = GaussianLikelihood()
-            mll = ExactMarginalLogLikelihood(likelihood, model)
-            fit_gpytorch_mll(mll)
-            
-        model = SingleTaskGP(X[ids_acquired, :], y_acquired)
-        
+        model = SingleTaskGP(X[ids_acquired, :], y_acquired) 
         mll = ExactMarginalLogLikelihood(model.likelihood, model)
         fit_gpytorch_mll(mll)
         
