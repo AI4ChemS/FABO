@@ -1,7 +1,7 @@
 # Self-Driving Discovery of Electric Vehicle Coolants
 
-<p align="center">
-  <img src="figures/image1.png" width="900">
+<p align="left">
+  <img src="figures/image1.png" width="600">
 </p>
 
 This repository implements a **self-driving laboratory (SDL)** framework for the discovery and optimization of electric vehicle (EV) coolant mixtures.
