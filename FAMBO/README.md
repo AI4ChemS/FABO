@@ -1,31 +1,31 @@
 # Self-Driving Discovery of Electric Vehicle Coolants
 
-<p align="left">
-  <img src="figures/image1.png" width="1500">
+<p align="center">
+  <img src="figures/image1.png" width="900">
 </p>
 
+This repository implements a **self-driving laboratory (SDL)** framework for the discovery and optimization of electric vehicle (EV) coolant mixtures.
 
-This repository contains the implementation of a self-driving laboratory (SDL) framework for the discovery and optimization of electric vehicle (EV) coolant mixtures.
+The platform combines:
 
-The platform integrates:
+- Automated search-space construction  
+- Machine learning surrogate modeling  
+- Bayesian Optimization (BO)  
+- Optional feature selection (FABO)  
+- Iterative experimental updating  
+- Mixture non-linearity handling  
 
-- Automated search-space construction
-- Machine learning-based surrogate modeling
-- Bayesian Optimization (BO)
-- Optional feature selection (FABO)
-- Iterative experimental updating
-- Mixture non-linearity handling
-
-The objective is to autonomously propose optimal coolant mixtures using a closed-loop experimental workflow.
+The goal is to autonomously propose high-performance coolant mixtures within a closed-loop optimization framework.
 
 ---
 
-# Repository Structure
+## Repository Structure
 
+```
 .
 ├── data/
-│   ├── compounds.csv              # Pure component metadata (required)
-│   └── train_data/                # Optional hot-start dataset
+│   ├── compounds.csv              # Required: pure component metadata
+│   └── train_data/                # Optional: hot-start dataset
 │
 ├── notebooks/
 │   └── main.ipynb                 # Demo notebook (recommended entry point)
@@ -33,55 +33,63 @@ The objective is to autonomously propose optimal coolant mixtures using a closed
 ├── src/
 │   ├── __init__.py
 │   ├── BO.py                      # Core Bayesian Optimization engine
-│   ├── feature_selection.py       # Feature selection utilities
+│   ├── feature_selection.py       # Feature selection methods
 │   ├── search_space_init.py       # Search space construction
-│   └── sdl.py                     # Self-driving loop wrapper
+│   └── sdl.py                     # Self-driving optimization loop
 │
 ├── requirements.txt
 └── README.md
+```
 
 ---
 
-# Installation
+## Installation
 
-1. Clone the repository:
+### 1. Clone the repository
 
+```bash
 git clone <your-repo-url>
 cd <repo-folder>
+```
 
-2. Create environment (recommended: Conda):
+### 2. Create environment (recommended)
 
+```bash
 conda create -n evcoolants python=3.10
 conda activate evcoolants
+```
 
-3. Install dependencies:
+### 3. Install dependencies
 
+```bash
 pip install -r requirements.txt
+```
 
 ---
 
-# How to Run a Demo
+## Quick Start (Demo)
 
-The easiest way to run the framework is via:
+The recommended entry point is:
 
+```
 notebooks/main.ipynb
+```
 
-Launch Jupyter from the repository root:
+From the repository root:
 
+```bash
 jupyter notebook
+```
 
-Then open:
-
-notebooks/main.ipynb
-
-Run cells sequentially.
+Open `notebooks/main.ipynb` and run all cells sequentially.
 
 ---
 
-# Workflow Overview
+## Workflow Overview
 
-## 1. Search Space Initialization
+### 1. Search Space Initialization
 
+```python
 cfg = SearchSpaceConfig(
     compounds_csv="../data/compounds.csv",
     processed_seed_csv="../data/train_data/train_data.csv",  # optional hot-start
@@ -94,19 +102,22 @@ cfg = SearchSpaceConfig(
 )
 
 X, y, df = init_search_space(cfg)
+```
 
 This step:
-- Generates mixture combinations
-- Builds the featurized design matrix
-- Creates the labels file
-- Supports optional hot-start
+
+- Generates mixture combinations  
+- Builds the featurized design matrix  
+- Creates aligned label files  
+- Supports optional hot-start experiments  
 
 ---
 
-## 2. Bayesian Optimization Loop
+### 2. Bayesian Optimization Loop
 
-Configured using:
+Configuration via dataclass:
 
+```python
 args = BOArgs(
     df_path=Path("../data/processed.csv"),
     compounds_path=Path("../data/compounds.csv"),
@@ -118,44 +129,53 @@ args = BOArgs(
     min_features=5,
     max_features=10,
 )
+```
 
-Run:
+Run optimization:
 
+```python
 run_sdl_bo(args, CHEMICALS)
+```
 
 Each iteration:
-1. Fits Gaussian Process surrogate
-2. Optimizes acquisition function (EI / exploration)
-3. Proposes new mixture
-4. Receives experimental FOM
-5. Updates dataset
-6. Repeats
+
+1. Fits Gaussian Process surrogate  
+2. Optimizes acquisition function (e.g., EI)  
+3. Proposes new mixture  
+4. Receives experimental FOM  
+5. Updates dataset  
+6. Repeats  
 
 ---
 
-# Key Features
+## Key Features
 
-- Supports hot-start experiments
-- Modular acquisition strategies
-- Optional feature selection (FABO)
-- Synergy penalty for linear mixtures
-- Resumable optimization
-- Designed for integration with hardware control
-
----
-
-# Developers
-
-Developed as part of the Self-Driving Discovery of Electric Vehicle Coolants project.
-
-Mahyar Rajabi Kochi - AI4ChemS - University of Toronto
+- Supports hot-start initialization  
+- Modular acquisition strategies  
+- Optional feature selection (FABO)  
+- Synergy-aware acquisition adjustment  
+- Resumable optimization  
+- Designed for integration with laboratory hardware  
 
 ---
 
-# Notes
+## Important Notes
 
-- All data files (processed.csv, labels.csv, featurized_processed.csv) must remain row-aligned.
-- data/compounds.csv is required to initialize the search space.
-- Experimental control functions must be provided externally when deploying with real hardware.
+- `data/compounds.csv` is required to initialize the search space.  
+- `processed.csv`, `labels.csv`, and `featurized_processed.csv` must remain row-aligned.  
+- Experimental data acquisition functions must be implemented separately when running with real hardware.  
 
-For questions or collaboration inquiries, please open an issue or contact the developers.
+---
+
+## Developers
+
+Developed as part of the **Self-Driving Discovery of Electric Vehicle Coolants** project.
+
+Mahyar Rajabi Kochi  
+AI4ChemS – University of Toronto  
+
+---
+
+## License
+
+Specify your license here (e.g., MIT License).
