@@ -1,0 +1,11 @@
+torch
+numpy
+pandas
+matplotlib
+scipy
+tqdm
+scikit-learn
+botorch
+gpytorch
+mrmr-selection
+
