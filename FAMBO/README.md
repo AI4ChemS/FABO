@@ -10,9 +10,8 @@ The platform combines:
 
 - Automated search-space construction  
 - Machine learning surrogate modeling  
-- Bayesian Optimization (BO)  
-- Optional feature selection (FABO)  
-- Iterative experimental updating  
+- Feature Adaptive Bayesian Optimization (FABO)  
+- Autonomous experimental updating  
 - Mixture non-linearity handling  
 
 The goal is to autonomously propose high-performance coolant mixtures within a closed-loop optimization framework.
@@ -48,7 +47,7 @@ The goal is to autonomously propose high-performance coolant mixtures within a c
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repo-url>
+git clone <repo-url>
 cd <repo-folder>
 ```
 
@@ -174,8 +173,4 @@ Developed as part of the **Self-Driving Discovery of Electric Vehicle Coolants**
 Mahyar Rajabi Kochi  
 AI4ChemS – University of Toronto  
 
----
 
-## License
-
-Specify your license here (e.g., MIT License).
